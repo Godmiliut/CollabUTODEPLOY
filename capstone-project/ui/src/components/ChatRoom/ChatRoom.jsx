@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import Video from 'twilio-video';
 import axios from "axios";
 import muteIcon from "../../assets/muted-svgrepo-com.svg"
+import videoIcon from "../../assets/no-video-icon.png"
 import "./ChatRoom.css";
 
 export default function ChatRoom() {
@@ -20,7 +21,9 @@ export default function ChatRoom() {
             findingAnotherBuddy, 
             setFindingAnotherBuddy,
             chatMessages,
-            setChatMessages } = useAuthContext()
+            setChatMessages,
+            disconnected,
+            setDisconnected } = useAuthContext()
 
     const [room, setRoom] = React.useState(null);
     const [showRoom, setShowRoom] = React.useState(false);
@@ -44,7 +47,7 @@ export default function ChatRoom() {
         remoteMuteImg.style.visibility = "hidden";
         const localMuteImg= document.getElementsByClassName('mute-icon')[1]
         localMuteImg.style.visibility = "hidden";
-        participantIdentity.textContent = 'Your match left and the room has ended. Please use the buttons above to leave the room.'
+        setDisconnected(true);
 
         if (room && room?.participants.size === 0) {
     
@@ -213,6 +216,24 @@ export default function ChatRoom() {
             :
             null
             }
+            {disconnected ?
+            <div className="modal-container">
+                <div className="disconnect-modal-container">
+                    <div className="header">
+                        <h1>Your match left and the room has ended. Please use the buttons below to leave the room.</h1>
+                    </div>
+                    <div className="button-row">
+                        <div className="button-container">
+                            <button className="exit-fr" onClick={findAnotherBuddy}>Find another buddy</button>
+                        </div>
+                        <div className="button-container">
+                            <button className="exit-fr" onClick={exitRoom}>Exit room</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            :
+            null}
             {findingAnotherBuddy ?
             <div className="modal-container">
                 <div className="find-another-buddy-modal-content">
@@ -287,6 +308,7 @@ export function Room(props) {
         } else if (track.kind == 'audio') {
 
             muteimg.style.visibility = "visible";
+            muteimg.style.left = '11%'
             track.detach().forEach(element => {
                 element.remove();
               });
@@ -426,13 +448,15 @@ export function Room(props) {
                         </div>
                         { props.chatOpen ? 
                         <div className={cName}>
-                            <form id="form" action="">
-                                <input id="input" autoComplete="off" placeholder="Type something..."/><button onClick={handleOnSubmit}>Send</button>
-                            </form>
+                            <div className="chat-header" onClick={() => (props.setChatOpen(!props.chatOpen))}>
+                                Chat
+                            </div>
                             <ul id="messages">
-                            {props.chatMessages.map((chat) => <li>{chat.peerUsername}: {chat.chatMsg}</li>)}
+                            {props.chatMessages.map((chat) => <li><span>{chat.peerUsername}:</span> <span>{chat.chatMsg}</span></li>)}
                             </ul>
-                            <button className="close-chat" onClick={() => (props.setChatOpen(!props.chatOpen))}>X</button>           
+                            <form id="form" action="">
+                                <input id="input" autoComplete="off" placeholder="Type something..."/><button onClick={handleOnSubmit} className="send-btn">Send</button>
+                            </form>
                         </div> : 
                         <div className={cName}>
                             <button className={bName} onClick={() => (props.setChatOpen(!props.chatOpen))}>Chat</button>
@@ -440,9 +464,18 @@ export function Room(props) {
             </div>
             </>
         : <div className="enter-room">
+            <div className="tips">
+                <p className="tips-header">Some Tips for Your Session: </p>
+                <ul>
+                    <li><span className="square">▪</span><span>Please make sure no other application is using your camera or microphone</span> </li>
+                    <li><span className="square">▪</span><span>Start off by introducing yourself</span> </li>
+                    <li><span className="square">▪</span><span>Discuss what are your goals for the session</span> </li>
+                    <li><span className="square">▪</span><span>Come up with a set of guidelines on how you will conduct yourself during the session</span> </li>
+                    <li><span className="square">▪</span><span>After session, discuss whether or not you want to continue to be accountability buddies</span></li>
+                    <li><span className="square">▪</span><span>When ready, press the Enter Room button to meet your match</span></li>
+                </ul>
+            </div>
             <button onClick={props.handleOnClick}> Enter Room </button>
-            <p>Please make sure no other application is using your camera or microphone</p>
-            <p>When ready, press the Enter Room button to meet your match</p>
       </div>
       }
       </div>
@@ -516,14 +549,14 @@ return (
         <div className="user-view">
             <div className="user-header">
             <h3>{props.participant.identity}</h3>
-                <img className="mute-icon" src={muteIcon} alt="Muted"></img>
             </div>
             <div className="user-video">
               <video className="actual-user-video" ref={videoRef} autoPlay={true} />  
               <audio ref={audioRef} autoPlay={true} />
               <img className="no-video" 
-              src=
-              "https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg" alt="no-video" /> 
+
+              src={videoIcon}
+              alt="no-video" /> 
             </div>
         </div>
 )}
