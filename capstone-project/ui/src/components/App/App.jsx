@@ -34,7 +34,6 @@ React.useEffect(() => {
   }
 }, [user]);
 
-
   return (
     <div className="App">
       <React.Fragment>

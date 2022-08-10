@@ -19,14 +19,14 @@ export const AuthContextProvider = ({ children }) => {
     const [inRoom, setInRoom] = useState(false);
     const [matchModal, setMatchModal] = useState(false);
     const [exiting, setExiting] = useState(false);
-    const [colleges, setColleges] = useState([]);
     const [findingAnotherBuddy, setFindingAnotherBuddy] = useState(false);
+    const [chatMessages, setChatMessages] = React.useState([]);
 
     //function for toggling report issue modal
-    function toggleReportModal(){
+    function toggleReportModal() {
       setReportModal(!reportModal)
-  
     }
+
     // function for toggling settings modal, 
     // should be set to true if user clicks settings  
     // and false if user presses close button on modal
@@ -41,6 +41,7 @@ export const AuthContextProvider = ({ children }) => {
       setPrefModal(!prefModal)
     }
 
+    // Fetchs user from database and sets token
     useEffect(() => {
 
         const fetchUser = async () => {
@@ -72,27 +73,15 @@ export const AuthContextProvider = ({ children }) => {
         }
       }, [setUser])
 
-      useEffect(()=> {
-        const getColleges = async () => {
-          const response = await fetch(
-            "http://universities.hipolabs.com/search?country=united states"
-          ).then((response) => response.json());
-        
-          // update the collegeList
-          setColleges(response);
-        };
-        getColleges();
-      }, [])
-     
-
+    // Log users out
     const logoutUser = async () => {
         await apiClient.logoutUser()
         setUser({})
         setError(null)
     }
-
+    
     const authValue = { user, 
-      setUser ,
+      setUser,
       error,
       setError,
       initialized,
@@ -123,10 +112,10 @@ export const AuthContextProvider = ({ children }) => {
       matchModal,
       exiting,
       setExiting,
-      colleges,
-      setColleges,
       findingAnotherBuddy, 
-      setFindingAnotherBuddy
+      setFindingAnotherBuddy,
+      chatMessages,
+      setChatMessages
     }
 
     return (

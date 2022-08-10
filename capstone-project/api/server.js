@@ -1,8 +1,8 @@
 const { PORT } = require("./config")
 const db = require("./db")
 const socket = require("socket.io")
-const crypto = require('crypto')
-require('colors')
+const { v4: uuidv4 } = require("uuid");
+require("colors")
 const app = require("./app")
 
 const server = app.listen(PORT, () => {
@@ -18,6 +18,7 @@ const io = socket(server, {
 
 let queue = []
 let rooms = {}
+let roomChatlogs = {}
 let userSockets = {}
 
 io.on("connection", (socket) => {
@@ -25,21 +26,34 @@ io.on("connection", (socket) => {
     console.log("The number of connected sockets: " + socket.adapter.sids.size);
     console.log('User '+ socket.id + 'is online');
 
+    // Removes user from queue
     socket.on('remove', (data) => {
       const index = queue.findIndex(removedPerson => removedPerson.user_id === data.user.id);
       queue.splice(index, 1);
     })
 
+    // Joins user to a room on connect
     socket.on('joinRoom', (data) => {
-      socket.join(data?.roomID);
+      socket.join(data);
     })
 
-    socket.on('chat message', msg => {
-      data = { "chatMsg": msg.chatMsg,
-              "peerUsername": msg.peerUsername}
-      io.sockets.in(msg.roomID).emit('chat message', data);
+    // Sends chat info to everyone in the same room
+    socket.on('chat message', (data) => {
+
+      chatData = { "chatMsg": data.chatMsg, "peerUsername": data.peerUsername }
+
+      if (roomChatlogs[data.roomID]) {
+        roomChatlogs[data.roomID].push(chatData)
+      } else {
+        roomChatlogs[data.roomID] = []
+        roomChatlogs[data.roomID].push(chatData)
+      }
+
+      io.sockets.in(data.roomID).emit('chat logs', roomChatlogs[data.roomID]);
+
     });
 
+    // Find a peer for a user and then redirects them to a chatroom together
     socket.on('submit', (data) => {
 
       let user = {
@@ -141,7 +155,7 @@ io.on("connection", (socket) => {
             console.error(err);
           })
 
-          let room = crypto.randomBytes(20).toString('hex');
+          let room = uuidv4();
 
           let peerSocket = userSockets[peer.socket_id]
 
