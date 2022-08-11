@@ -64,7 +64,7 @@
     color: black;
 }
 
-.chat-room .content .user-views .user-view .user-video img {
+.chat-room .content .user-views .user-view .user-video .mute-icon{
    height: 4vh;
    margin-left: 5vw;
    visibility: hidden;
@@ -479,6 +479,17 @@ video {
     color: black;
     border: 1px;
     border-radius: 20px;
+}
+
+.modal-container .exit-modal-content .exit-fr{
+    height: 8vh;
+    color: white;
+    background: #4846BD;
+    font-size: 4.2vh;
+    border: none;
+    cursor: pointer;
+    margin-top: 3vh;
+    border-radius: 25px;
 }
 
 .modal-container .exit-modal-content .header .button-container .close-modal {
