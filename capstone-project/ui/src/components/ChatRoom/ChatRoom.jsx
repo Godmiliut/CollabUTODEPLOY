@@ -57,7 +57,7 @@ export default function ChatRoom() {
                 try {
                     await axios({
                         method: 'post',
-                        url: `http://localhost:3001/disconnect/${roomID}`
+                        url: `https://collabutest.herokuapp.com/disconnect/${roomID}`
                     });
                 } catch (error) {
                     if (error.code == 53112) {
@@ -174,7 +174,7 @@ export default function ChatRoom() {
       // fetch an Access Token from the join-room route
       const response = await axios({
           method: 'post',
-          url: 'http://localhost:3001/join-room',
+          url: 'https://collabutest.herokuapp.com/join-room',
           data: {
               identity: user.username,
               roomName: roomID
@@ -388,7 +388,7 @@ export function Room(props) {
 
     React.useEffect(() => {
 
-        const socket = io("http://localhost:3001")
+        const socket = io("https://collabutest.herokuapp.com")
 
         client.current = socket;
 
